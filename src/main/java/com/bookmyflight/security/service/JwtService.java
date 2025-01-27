@@ -11,6 +11,7 @@ import java.util.function.Function;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,21 +25,22 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {  
 
-	private String secretkey="";
+	@Value("${jwt.secret}")
+	private String secretkey;
 	
 	
 	
-	public JwtService() {
-		try {
-			KeyGenerator keyGen= KeyGenerator.getInstance("HmacSHA256");
-			SecretKey sk= keyGen.generateKey();
-			secretkey=Base64.getEncoder().encodeToString(sk.getEncoded());
-			
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
-		}
-	}
+//	public JwtService() {
+//		try {
+//			KeyGenerator keyGen= KeyGenerator.getInstance("HmacSHA256");
+//			SecretKey sk= keyGen.generateKey();
+//			secretkey=Base64.getEncoder().encodeToString(sk.getEncoded());
+//			
+//		} catch (NoSuchAlgorithmException e) {
+//			// TODO Auto-generated catch block
+//			throw new RuntimeException(e);
+//		}
+//	}
 
 	public  String generateToken(String username,Role role) {
 		
@@ -49,12 +51,11 @@ public class JwtService {
 		claims.put("role", role );
 		System.out.println("generateToken executed");
 		return Jwts.builder()
-				.claims()
-				.add(claims)
+				.claims(claims)
+				
 				.subject(username)
 				.issuedAt(new Date(System.currentTimeMillis()))
 				.expiration(new Date(System.currentTimeMillis() + 1000*60*60*24))	
-				.and()
 				.signWith(getKey())
 				.compact();
 		

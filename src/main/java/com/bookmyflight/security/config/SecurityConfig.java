@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -39,8 +40,8 @@ public class SecurityConfig {
 	    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 				return http.csrf(csrf -> csrf.disable())
 		                .authorizeRequests(requests -> requests.antMatchers("/api/v1/auth/**").permitAll()
-		                        .antMatchers("api/v1/admin/**").hasRole(Role.ADMIN.toString())
-		                        .antMatchers("api/v1/user/**").hasAnyAuthority(Role.USER.toString(),Role.ADMIN.toString())// Use antMatchers instead of requestMatcher
+		                        .antMatchers("api/v1/admin/**").hasRole("ADMIN")
+		                        .antMatchers("api/v1/user/**").hasAnyRole("USER","ADMIN")// Use antMatchers instead of requestMatcher
 		                        .anyRequest().authenticated())
 		                .httpBasic(Customizer.withDefaults())
 		                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -76,6 +77,11 @@ public class SecurityConfig {
 		public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 			return config.getAuthenticationManager();
         }
+		
+		@Bean
+		public PasswordEncoder passwordEncoder(){
+		  return  new BCryptPasswordEncoder(12);
 		}
+}
 
 
